@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Person } from '../types';
 import { PersonLink } from './PersonLink/PersonLink';
 import { useState } from 'react';
@@ -89,7 +89,12 @@ export const PeopleTable: React.FC<Props> = ({ people }) => {
               onClick={() => setSelectedPersonSlug(person.slug)}
             >
               <td>
-                <a href="#/people/pieter-haverbeke-1602">{person.name}</a>
+                <Link
+                  to={`/people/${person.slug}`}
+                  className={person.sex === 'f' ? 'has-text-danger' : ''}
+                >
+                  {person.name}
+                </Link>
               </td>
               <td>{person.sex}</td>
               <td>{person.born}</td>

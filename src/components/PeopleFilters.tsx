@@ -1,19 +1,18 @@
 import classNames from 'classnames';
 import { useEffect, useState } from 'react';
-import { Link, NavLink, useParams, useSearchParams } from 'react-router-dom';
+import { Link, NavLink, useSearchParams } from 'react-router-dom';
 import { getSearchWith } from '../utils/searchHelper';
 
 const centryFilter = [
-  { id: 'centuries=16', title: '16' },
-  { id: 'centuries=17', title: '17' },
-  { id: 'centuries=18', title: '18' },
-  { id: 'centuries=19', title: '19' },
-  { id: 'centuries=20', title: '20' },
+  { title: '16' },
+  { title: '17' },
+  { title: '18' },
+  { title: '19' },
+  { title: '20' },
 ];
 
 export const PeopleFilters = () => {
   const [query, setQuery] = useState('');
-  const { filterId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const getLink = (sex: string | null) => {
@@ -26,6 +25,24 @@ export const PeopleFilters = () => {
     }
 
     return `/people?${params.toString()}`;
+  };
+
+  const handleCenturyClick = (century: string) => {
+    const params = new URLSearchParams(searchParams);
+    const centuries = params.getAll('centuries');
+
+    if (centuries.includes(century)) {
+      // Remove century
+      params.delete('centuries');
+      centuries
+        .filter(c => c !== century)
+        .forEach(c => params.append('centuries', c));
+    } else {
+      // Add century
+      params.append('centuries', century);
+    }
+
+    setSearchParams(params);
   };
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,28 +103,32 @@ export const PeopleFilters = () => {
 
       <div className="panel-block">
         <div className="level is-flex-grow-1 is-mobile" data-cy="CenturyFilter">
-          {centryFilter.map(filter => (
-            <div key={filter.id} className="level-left">
-              <Link
-                data-cy="century"
-                className={classNames(
-                  {
-                    'is-info': filterId === filter.id,
-                  },
-                  'button mr-1 ',
-                )}
-                to={`#/people?${filter.id}`}
+          {centryFilter.map(filter => {
+            const isActive = searchParams
+              .getAll('centuries')
+              .includes(filter.title);
+
+            return (
+              <button
+                key={filter.title}
+                className={classNames('button mr-1', { 'is-info': isActive })}
+                onClick={() => handleCenturyClick(filter.title)}
               >
                 {filter.title}
-              </Link>
-            </div>
-          ))}
+              </button>
+            );
+          })}
 
           <div className="level-right ml-4">
             <Link
               data-cy="centuryALL"
               className="button is-success is-outlined"
-              to="/people"
+              to={{
+                pathname: '/people',
+                search: getSearchWith(searchParams, {
+                  centuries: null,
+                }).toString(),
+              }}
             >
               All
             </Link>
