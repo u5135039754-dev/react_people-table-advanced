@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, useSearchParams } from 'react-router-dom';
 import { getSearchWith } from '../utils/searchHelper';
 
-const centryFilter = [
+const centuryFilter = [
   { title: '16' },
   { title: '17' },
   { title: '18' },
@@ -103,7 +103,7 @@ export const PeopleFilters = () => {
 
       <div className="panel-block">
         <div className="level is-flex-grow-1 is-mobile" data-cy="CenturyFilter">
-          {centryFilter.map(filter => {
+          {centuryFilter.map(filter => {
             const isActive = searchParams
               .getAll('centuries')
               .includes(filter.title);

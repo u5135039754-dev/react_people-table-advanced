@@ -45,7 +45,7 @@ export const PeoplePage = () => {
                 </p>
               )}
 
-              {!loading && !people && (
+              {!loading && people && (
                 <p>There are no people matching the current search criteria</p>
               )}
 
