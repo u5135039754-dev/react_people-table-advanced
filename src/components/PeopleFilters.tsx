@@ -1,7 +1,7 @@
 import classNames from 'classnames';
-import { useEffect, useState } from 'react';
 import { Link, NavLink, useSearchParams } from 'react-router-dom';
 import { getSearchWith } from '../utils/searchHelper';
+import { Person } from '../types';
 
 const centuryFilter = [
   { title: '16' },
@@ -11,38 +11,41 @@ const centuryFilter = [
   { title: '20' },
 ];
 
-export const PeopleFilters = () => {
-  const [query, setQuery] = useState('');
+type Props = {
+  people: Person[] | undefined;
+};
+
+export const PeopleFilters: React.FC<Props> = ({ people }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getLink = (sex: string | null) => {
+  const query = searchParams.get('query') ?? '';
+
+  const handleCenturyClick = (century: string) => {
+    const params = new URLSearchParams(searchParams);
+    const current = params.getAll('centuries');
+
+    if (current.includes(century)) {
+      params.delete('centuries');
+      current
+        .filter(c => c !== century)
+        .forEach(c => params.append('centuries', c));
+    } else {
+      params.append('centuries', century);
+    }
+
+    setSearchParams(params);
+  };
+
+  const getLink = (sexy: string | null) => {
     const params = new URLSearchParams(searchParams);
 
-    if (sex) {
-      params.set('sex', sex);
+    if (sexy) {
+      params.set('sex', sexy);
     } else {
       params.delete('sex');
     }
 
     return `/people?${params.toString()}`;
-  };
-
-  const handleCenturyClick = (century: string) => {
-    const params = new URLSearchParams(searchParams);
-    const centuries = params.getAll('centuries');
-
-    if (centuries.includes(century)) {
-      // Remove century
-      params.delete('centuries');
-      centuries
-        .filter(c => c !== century)
-        .forEach(c => params.append('centuries', c));
-    } else {
-      // Add century
-      params.append('centuries', century);
-    }
-
-    setSearchParams(params);
   };
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,12 +55,6 @@ export const PeopleFilters = () => {
 
     setSearchParams(search);
   };
-
-  useEffect(() => {
-    const quer = searchParams.get('query') ?? '';
-
-    setQuery(quer);
-  }, [searchParams]);
 
   return (
     <nav className="panel">
@@ -113,6 +110,7 @@ export const PeopleFilters = () => {
                 key={filter.title}
                 className={classNames('button mr-1', { 'is-info': isActive })}
                 onClick={() => handleCenturyClick(filter.title)}
+                type="button"
               >
                 {filter.title}
               </button>

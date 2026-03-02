@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 /* eslint-disable jsx-a11y/control-has-associated-label */
 type Props = {
-  people: Person[] | undefined;
+  people: Person[];
 };
 
 export const PeopleTable: React.FC<Props> = ({ people }) => {

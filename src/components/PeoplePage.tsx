@@ -4,11 +4,35 @@ import { PeopleTable } from './PeopleTable';
 import { useEffect, useState } from 'react';
 import { Person } from '../types';
 import { getPeople } from '../api';
+import { useSearchParams } from 'react-router-dom';
 
 export const PeoplePage = () => {
-  const [people, setPeople] = useState<Person[]>();
+  const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const [searchParams] = useSearchParams();
+
+  const query = searchParams.get('query') ?? '';
+  const sex = searchParams.get('sex') ?? null;
+  const centuries = searchParams.getAll('centuries');
+
+  const filtered = people.filter(person => {
+    const matchesQuery =
+      !query ||
+      [person.name, person.motherName, person.fatherName]
+        .filter(Boolean)
+        .some(s => s.toLowerCase().includes(query.toLowerCase()));
+    const matchesSex = !sex || person.sex === sex;
+    const personCentury = person.born
+      ? String(Math.floor(person.born / 100) + 1)
+      : null;
+    const matchesCentury =
+      centuries.length === 0 ||
+      (personCentury && centuries.includes(personCentury));
+
+    return matchesQuery && matchesSex && matchesCentury;
+  });
 
   useEffect(() => {
     setErrorMessage('');
@@ -28,7 +52,7 @@ export const PeoplePage = () => {
       <div className="block">
         <div className="columns is-desktop is-flex-direction-row-reverse">
           <div className="column is-7-tablet is-narrow-desktop">
-            <PeopleFilters />
+            <PeopleFilters people={people} />
           </div>
 
           <div className="column">
@@ -45,11 +69,11 @@ export const PeoplePage = () => {
                 </p>
               )}
 
-              {!loading && people && (
+              {!loading && people && filtered.length === 0 && (
                 <p>There are no people matching the current search criteria</p>
               )}
 
-              {!loading && people && <PeopleTable people={people} />}
+              {!loading && people && <PeopleTable people={filtered} />}
             </div>
           </div>
         </div>
