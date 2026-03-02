@@ -15,7 +15,7 @@ type Props = {
   people: Person[] | undefined;
 };
 
-export const PeopleFilters: React.FC<Props> = ({ people }) => {
+export const PeopleFilters: React.FC<Props> = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const query = searchParams.get('query') ?? '';
